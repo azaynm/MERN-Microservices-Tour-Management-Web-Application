@@ -33,6 +33,7 @@ const imageFilter = function (req, file, cb) {
 const upload = multer({ storage: storage, fileFilter: imageFilter });
 router.post("/", upload.single("image"), activityController.createActivity); 
 router.get("/", activityController.getActivities); 
+router.get("/:activityId", activityController.getActivityById); 
 // router.patch("/:id", userController.updateUser); 
 // router.delete("/:id", userController.deleteUser); 
 

@@ -18,6 +18,19 @@ exports.getActivities = async (req, res) => {
     }
 }
 
+exports.getActivityById = async (req, res) => {
+    try {
+        const activityId = req.params.activityId;
+        const activity = await Activity.findById(activityId);
+        res.json(activity);
+    } catch (error) {
+        console.error(`Error fetching Activities:`, error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+
 exports.createActivity = async (req, res) => {
     const result = await cloudinary.v2.uploader.upload(req.file.path);
     const name = req.body.name;
