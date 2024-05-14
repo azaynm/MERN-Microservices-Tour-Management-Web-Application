@@ -8,6 +8,8 @@ const PORT = 4000;
 const userServiceHost = "localhost";
 const userServicePort = 4001;
 
+const activityServiceHost = "localhost";
+const activityServicePort = 4002;
 // Function to create a simple proxy request
 const proxyRequest = (req, res, targetHost, targetPort) => {
   const options = {
@@ -33,6 +35,9 @@ const proxyRequest = (req, res, targetHost, targetPort) => {
 // Routes
 app.all("/users/*", (req, res) =>
   proxyRequest(req, res, userServiceHost, userServicePort)
+);
+app.all("/activity/*", (req, res) =>
+  proxyRequest(req, res, activityServiceHost, activityServicePort)
 );
 
 
