@@ -18,13 +18,25 @@ exports.getActivities = async (req, res) => {
     }
 }
 
+exports.deleteActivityById = async (req, res) => {
+    try {
+        const activityId = req.params.activityId;
+        const activity = await Activity.findByIdAndDelete(activityId)
+        res.json(activity);
+    } catch (error) {
+        console.error(`Error deleting Activities:`, error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
 exports.getActivityById = async (req, res) => {
     try {
         const activityId = req.params.activityId;
         const activity = await Activity.findById(activityId);
         res.json(activity);
     } catch (error) {
-        console.error(`Error fetching Activities:`, error);
+        console.error(`Error fetching Activity:`, error);
         res.status(500).json({ message: "Internal server error" });
     }
 }

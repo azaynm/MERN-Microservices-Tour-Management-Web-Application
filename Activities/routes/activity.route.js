@@ -34,6 +34,7 @@ const upload = multer({ storage: storage, fileFilter: imageFilter });
 router.post("/", upload.single("image"), activityController.createActivity); 
 router.get("/", activityController.getActivities); 
 router.get("/:activityId", activityController.getActivityById); 
+router.delete("/:activityId", activityController.deleteActivityById); 
 // router.patch("/:id", userController.updateUser); 
 // router.delete("/:id", userController.deleteUser); 
 
