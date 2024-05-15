@@ -36,3 +36,4 @@ cloudinary.config({
 
 router.post("/upload", upload.single("image"), foodController.createFood);
 
+module.exports = router;
