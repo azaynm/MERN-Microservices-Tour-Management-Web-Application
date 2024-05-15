@@ -10,6 +10,9 @@ const userServicePort = 4001;
 
 const activityServiceHost = "localhost";
 const activityServicePort = 4002;
+
+const foodServiceHost = "localhost";
+const foodServicePort = 4003;
 // Function to create a simple proxy request
 const proxyRequest = (req, res, targetHost, targetPort) => {
   const options = {
@@ -38,6 +41,10 @@ app.all("/users/*", (req, res) =>
 );
 app.all("/activity/*", (req, res) =>
   proxyRequest(req, res, activityServiceHost, activityServicePort)
+);
+
+app.all("/food/*", (req, res) =>
+  proxyRequest(req, res, foodServiceHost, foodServicePort)
 );
 
 
