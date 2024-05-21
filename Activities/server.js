@@ -2,8 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const activityRoutes = require("./routes/activity.route");
-
+const activityRoutes = require("./routes/activity.js");
+const purchasedActivityRoutes = require("./routes/purchasedActivities.js");
 const mongoDB = process.env.DB;
 
 // Connect to MongoDB
@@ -22,6 +22,9 @@ app.use(cors());
 
 // User routes
 app.use("/activity", activityRoutes);
+app.use("/activity/purchased-activities", purchasedActivityRoutes);
+
+
 
 const PORT = process.env.PORT || 4002;
 

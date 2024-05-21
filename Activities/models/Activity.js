@@ -1,6 +1,5 @@
-const mongoose = require("mongoose");
-
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const activitySchema = new Schema({
     name: {
@@ -27,14 +26,12 @@ const activitySchema = new Schema({
         type: Number,
         required: true
     },
-    date: {
-        type: Date,
-        required: true
-    },
+    hotelId: { type: String, required: true },
     image:{
         type: String,
     }
 }, { timestamps: true });
 
 const Activity = mongoose.model("Activity", activitySchema);
+
 module.exports = Activity;
