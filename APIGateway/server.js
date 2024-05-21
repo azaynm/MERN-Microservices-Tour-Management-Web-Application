@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const cors = require("cors");
 
 const app = express();
 const PORT = 4000;
@@ -13,6 +14,8 @@ const activityServicePort = 4002;
 
 const foodServiceHost = "localhost";
 const foodServicePort = 4003;
+
+app.use(cors());
 // Function to create a simple proxy request
 const proxyRequest = (req, res, targetHost, targetPort) => {
   const options = {

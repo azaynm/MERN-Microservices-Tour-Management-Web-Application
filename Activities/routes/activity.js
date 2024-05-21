@@ -1,79 +1,16 @@
-const { Router } = require("express");
+const {Router} = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const cloudinary = require("cloudinary");
-const Activity = require("../models/activitiy.model.js");
+const Activity = require("../models/Activity");
+
+
+
 
 
 
 const router = Router();
 
-exports.getActivities = async (req, res) => {
-    try {
-        const activities = await Activity.find();
-        res.json(activities);
-    } catch (error) {
-        console.error(`Error fetching Activities:`, error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-exports.deleteActivityById = async (req, res) => {
-    try {
-        const activityId = req.params.activityId;
-        const activity = await Activity.findByIdAndDelete(activityId)
-        res.json(activity);
-    } catch (error) {
-        console.error(`Error deleting Activities:`, error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-
-exports.getActivityById = async (req, res) => {
-    try {
-        const activityId = req.params.activityId;
-        const activity = await Activity.findById(activityId);
-        res.json(activity);
-    } catch (error) {
-        console.error(`Error fetching Activity:`, error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-
-
-exports.createActivity = async (req, res) => {
-    const result = await cloudinary.v2.uploader.upload(req.file.path);
-    const name = req.body.name;
-    const description = req.body.description;
-    const startTime = req.body.startTime;
-    const endTime = req.body.endTime;
-    const participantsCount = req.body.participantsCount;
-    const cost = req.body.cost;
-    const date = req.body.date;
-    const hotelId = req.body.hotelId;
-    const image = result.secure_url;
-
-    const newActivityData = {
-        name,
-        description,
-        startTime,
-        endTime,
-        participantsCount,
-        cost,
-        date,
-        hotelId,
-        image
-
-    }
-
-    const newActivity = new Activity(newActivityData);
-
-    newActivity.save()
-        .then(() => res.json('Activity Added'))
-        .catch(err => res.status(400).json('Error: ' + err));
-  };
 
 const storage = multer.diskStorage({
     filename: function (req, file, callback) {
@@ -118,7 +55,7 @@ router.post("/upload", upload.single("image"), async (req, res) => {
     const endTime = req.body.endTime;
     const participantsCount = req.body.participantsCount;
     const cost = req.body.cost;
-    const date = req.body.date;
+    const hotelId = req.body.hotelId;
     const image = result.secure_url;
 
     const newActivityData = {
@@ -128,7 +65,7 @@ router.post("/upload", upload.single("image"), async (req, res) => {
         endTime,
         participantsCount,
         cost,
-        date,
+        hotelId,
         image
 
     }
@@ -139,6 +76,22 @@ router.post("/upload", upload.single("image"), async (req, res) => {
         .then(() => res.json('Activity Added'))
         .catch(err => res.status(400).json('Error: ' + err));
 });
+
+
+router.post('/filter-by-hotel', async (req, res) => {
+    try {
+      const { hotelId } = req.body;
+  
+      // Query MongoDB to find items with the specified hotelId and cuisine
+      const items = await Activity.find({ hotelId });
+  
+      res.json({ items });
+    } catch (error) {
+      console.error('Error filtering items by activity:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
 
 router.get('/get-activity', async (req, res) => {
     const id = req.body.id;
@@ -187,20 +140,94 @@ router.get('/get-cuisines/:id', async (req, res) => {
     }
 });
 
-router.post('/filter-by-cuisine', async (req, res) => {
+
+
+router.post('/filter-by-hotel', async (req, res) => {
+    const { hotelId } = req.body; // Extract hotelId from request body
+
     try {
-        const { hotelId, cuisineName } = req.body;
+        // Query database for activities based on hotelId
+        const activities = await Activity.find({ hotelId });
 
-        // Query MongoDB to find items with the specified hotelId and cuisine
-        const items = await Food.find({ hotelId, cuisines: cuisineName });
-
-        res.json({ items });
+        // Send response with activities
+        res.status(200).json({ items: activities });
     } catch (error) {
-        console.error('Error filtering items by cuisine:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        // Handle errors and send appropriate response
+        console.error('Error fetching activities by hotel:', error);
+        res.status(500).json({ error: 'An error occurred while fetching activities' });
     }
 });
 
+
+
+router.get('/:id', async (req, res) => {
+    const id = req.params.id;
+    const activity = await Activity.findById(id);
+
+    res.json(activity)
+})
+
+
+router.put("/:activityId", upload.single("image"), async (req, res) => {
+    const { activityId } = req.params;
+  
+    try {
+        // Find the food item by its ID
+        const activity = await Activity.findById(activityId);
+  
+        // Check if there's a new image uploaded
+        if (req.file && req.file.path) {
+            // Upload the image to Cloudinary
+            const result = await cloudinary.v2.uploader.upload(req.file.path);
+            activity.image = result.secure_url;
+        }
+
+        // Update food details with the data from the request body
+        activity.name = req.body.name;
+        activity.description = req.body.description;
+        activity.startTime = req.body.startTime;
+        activity.endTime = req.body.endTime;
+        activity.participantsCount = req.body.participantsCount;
+        activity.cost = req.body.cost;
+  
+        // Save the updated food item
+        const updatedActivity = await activity.save();
+  
+        // Send a response indicating success
+        res.status(200).json({ message: 'Activity updated successfully', data: updatedActivity });
+    } catch (error) {
+        // Handle any errors and send an error response
+        console.error('Error updating activity:', error);
+        res.status(500).json({ error: 'An error occurred while updating activity' });
+    }
+  });
+
+
+  
+router.delete('/:activitiyId', async (req, res) => {
+    const { activitiyId } = req.params;
+  
+    try {
+        // Find the food item by its ID
+        const activitiy = await Activity.findById(activitiyId);
+  
+        // Check if the food item exists
+        if (!activitiy) {
+            return res.status(404).json({ error: 'Activity not found' });
+        }
+  
+        // Delete the food item from the database
+        await activitiy.deleteOne();
+  
+        // Send a success response
+        res.status(200).json({ message: 'Activitiy deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting activitiy:', error);
+        // Send an error response
+        res.status(500).json({ error: 'An error occurred while deleting activitiy' });
+    }
+  });
+  
 
 
 
@@ -294,16 +321,11 @@ router.post('/filter-by-cuisine', async (req, res) => {
 
 
 
-router.get('/:id', async (req, res) => {
-    const id = req.params.id;
-    const food = await Food.findById(id);
-
-    res.json(food)
-})
-
 router.get('/getImage/:id', async (req, res) => {
     const id = req.params.id;
     const food = await Food.findById(id);
     res.json(food.image);
 
 })
+
+module.exports = router;
